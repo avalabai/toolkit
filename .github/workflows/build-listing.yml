@@ -59,7 +59,7 @@ jobs:
       # Build Package Version Listing with Nuke
       - name: Build Package Version Listing
         run: |
-          patch -u ${{ env.pathToCi }}/PackageBuilder/Build.cs <<< EOS
+          patch -u --fuzz 3 ${{ env.pathToCi }}/PackageBuilder/Build.cs << EOS
           --- package-list-action/PackageBuilder/Build.cs	2024-08-28 03:57:26
           +++ package-list-action/PackageBuilder/Build.cs	2024-08-28 03:59:01
           @@ -54,9 +54,8 @@
