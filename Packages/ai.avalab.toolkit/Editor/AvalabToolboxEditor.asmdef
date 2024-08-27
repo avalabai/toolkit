@@ -1,0 +1,25 @@
+{
+    "name": "AvalabToolkitEditor",
+    "rootNamespace": "AI.Avalab.ToolkitEditor",
+    "references": [
+        "GUID:bde54ec78fa44194b90265398a3b8cac",
+        "GUID:72a6d6e269e772a449b84a71b4953bca"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.vrchat.avatars",
+            "expression": "3.0.0",
+            "define": "VRC_AVATAR_SDK3"
+        }
+    ],
+    "noEngineReferences": false
+}
