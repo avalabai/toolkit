@@ -58,7 +58,30 @@ jobs:
       
       # Build Package Version Listing with Nuke
       - name: Build Package Version Listing
-        run: ${{ env.pathToCi }}/build.cmd BuildRepoListing --root ${{ env.pathToCi }} --list-publish-directory $GITHUB_WORKSPACE/${{ env.listPublishDirectory }} --current-package-name ${{ vars.PACKAGE_NAME }} --current-listing-url ${{ vars.LISTING_JSON_URL }}
+        run: |
+          patch -u ${{ env.pathToCi }}/PackageBuilder/Build.cs <<< EOS
+          --- package-list-action/PackageBuilder/Build.cs	2024-08-28 03:57:26
+          +++ package-list-action/PackageBuilder/Build.cs	2024-08-28 03:59:01
+          @@ -54,9 +54,8 @@
+                      : RootDirectory.Parent / "template-package-listing";
+          
+                  [Parameter("Path to existing index.json file, typically https://{owner}.github.io/{repo}/index.json")]
+          -        string CurrentListingUrl =>
+          -            $"https://{GitHubActions.RepositoryOwner}.github.io/{GitHubActions.Repository.Split('/')[1]}/{PackageListingPublishFilename}";
+          -        
+          +        string CurrentListingUrl = null;
+          +
+                  // assumes that "template-package" repo is checked out in sibling dir to this repo, can be overridden
+                  [Parameter("Path to Target Package")] 
+                  AbsolutePath LocalTestPackagesPath => RootDirectory.Parent / "template-package"  / "Packages";
+          \ No newline at end of file
+          EOS
+
+          ${{ env.pathToCi }}/build.cmd BuildRepoListing \
+            --root ${{ env.pathToCi }} \
+            --list-publish-directory $GITHUB_WORKSPACE/${{ env.listPublishDirectory }} \
+            --current-package-name ${{ vars.PACKAGE_NAME }} \
+            --current-listing-url ${{ vars.LISTING_JSON_URL }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
