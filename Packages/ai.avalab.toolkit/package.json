@@ -5,6 +5,7 @@
   "unity": "2022.3",
   "description": "Avalab avatar uploading tools for Unity.",
   "vrchatVersion": "2022.1.1",
+  "license": "Apache-2.0",
   "author": {
     "name": "Nameraka",
     "email": "support@avalab.ai",
