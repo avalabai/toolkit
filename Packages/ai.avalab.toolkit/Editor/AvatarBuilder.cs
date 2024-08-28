@@ -373,7 +373,7 @@ namespace AI.Avalab.ToolkitEditor
                         continue;
                     }
 #if VRC_AVATAR_SDK3
-                    if (component.GetType().IsSubclassOf(typeof(VRC.SDKBase.IEditorOnly)))
+                    if (component as VRC.SDKBase.IEditorOnly != null)
                     {
                         continue;
                     }
