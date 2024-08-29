@@ -122,30 +122,45 @@ namespace AI.Avalab.ToolkitEditor
             camera.targetTexture = new RenderTexture(599, 599, 24);
             RenderTexture.active = camera.targetTexture;
 
-            float viewHeight = 1.5f;
-            viewHeight = targetAvatar.GetBoneTransform(HumanBodyBones.Head).position.y * 1.0f;
-#if VRC_AVATAR_SDK3
-            var vrcAvatar = targetAvatar.GetComponent<VRC.SDK3.Avatars.Components.VRCAvatarDescriptor>();
-            viewHeight = vrcAvatar.ViewPosition.y;
-#endif
-            camera.transform.position = new Vector3(0, viewHeight, 1.5f);
-            camera.transform.LookAt(new Vector3(0, viewHeight, 0), Vector3.up);
+            {
+                float distanceScaleFactor = 1.0f;
+                Bounds bounds = CalculateBoundsForEachChildren(targetAvatar.gameObject);
+                float fov = camera.fieldOfView / 360.0f * 2 * Mathf.PI;
+                Vector3 pos = bounds.center;
+                float max = Mathf.Max(bounds.extents.x, bounds.extents.y) * distanceScaleFactor;
+                float tan = Mathf.Tan(fov / 2);
+                pos.z += bounds.extents.z / 2 + max / tan;
+                Quaternion rot = Quaternion.LookRotation(bounds.center - pos, Vector3.up);
+                camera.transform.position = pos;
+                camera.transform.rotation = rot;
 
-            camera.Render();
+                camera.Render();
 
-            screenshots.bustUp = new Texture2D(599, 599, TextureFormat.ARGB32, false);
-            screenshots.bustUp.ReadPixels(new Rect(0, 0, 599, 599), 0, 0);
-            screenshots.bustUp.Apply();
+                screenshots.fullBody = new Texture2D(599, 599, TextureFormat.ARGB32, false);
+                screenshots.fullBody.ReadPixels(new Rect(0, 0, 599, 599), 0, 0);
+                screenshots.fullBody.Apply();
+            }
 
-            camera.transform.position = new Vector3(0, viewHeight, 3.5f);
-            camera.transform.LookAt(new Vector3(0, targetAvatar.GetBoneTransform(HumanBodyBones.Hips).position.y, 0), Vector3.up);
+            {
+                float distanceScaleFactor = 1.0f;
+                Bounds fullbodyBounds = CalculateBoundsForEachChildren(targetAvatar.gameObject);
+                Bounds bounds = CalculateBoundsForFace(targetAvatar, fullbodyBounds);
+                float fov = camera.fieldOfView / 360.0f * 2 * Mathf.PI;
+                Vector3 pos = bounds.center;
+                float max = Mathf.Max(bounds.extents.x, bounds.extents.y) * distanceScaleFactor;
+                float tan = Mathf.Tan(fov / 2);
+                pos.z += bounds.extents.z / 2 + max / tan;
+                Quaternion rot = Quaternion.LookRotation(bounds.center - pos, Vector3.up);
+                camera.transform.position = pos;
+                camera.transform.rotation = rot;
 
-            camera.Render();
+                camera.Render();
 
-            RenderTexture.active = camera.targetTexture;
-            screenshots.fullBody = new Texture2D(599, 599, TextureFormat.ARGB32, false);
-            screenshots.fullBody.ReadPixels(new Rect(0, 0, 599, 599), 0, 0);
-            screenshots.fullBody.Apply();
+                RenderTexture.active = camera.targetTexture;
+                screenshots.bustUp = new Texture2D(599, 599, TextureFormat.ARGB32, false);
+                screenshots.bustUp.ReadPixels(new Rect(0, 0, 599, 599), 0, 0);
+                screenshots.bustUp.Apply();
+            }
 
             AnimationMode.StopAnimationMode();
 
@@ -458,5 +473,38 @@ namespace AI.Avalab.ToolkitEditor
 
             return boundsSize;
         }
+
+        internal static Bounds CalculateBoundsForEachChildren(GameObject target)
+        {
+            var renderers = target.GetComponentsInChildren<Renderer>();
+            var bounds = new Bounds();
+
+            foreach (var r in renderers)
+            {
+                bounds.Encapsulate(r.bounds);
+            }
+
+            return bounds;
+        }
+
+        internal static Bounds CalculateBoundsForFace(Animator anim, Bounds fullbody)
+        {
+            var bodyC = fullbody.center;
+            var top = new Vector3(bodyC.x, fullbody.extents.y + bodyC.y, bodyC.z);
+            var chest = anim.GetBoneTransform(HumanBodyBones.UpperChest)
+                     ?? anim.GetBoneTransform(HumanBodyBones.Chest)
+                     ?? anim.GetBoneTransform(HumanBodyBones.Spine)
+                     ?? throw new System.InvalidOperationException(
+                        "Cannot find chest bone from given model. Please make sure it is a Unity Humanoid compatible."
+                    );
+
+            var bottom = new Vector3(bodyC.x, chest.transform.position.y, bodyC.z);
+
+            var center = (top + bottom) / 2;
+            var extents = new Vector3(fullbody.extents.x, top.y - bottom.y, fullbody.extents.z);
+
+            return new Bounds(center, extents);
+        }
     }
+
 }

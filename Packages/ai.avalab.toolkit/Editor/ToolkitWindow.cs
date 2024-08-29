@@ -192,7 +192,7 @@ namespace AI.Avalab.ToolkitEditor
                     wordWrap = true
                 };
                 wrapStyle = EditorStyles.wordWrappedLabel;
-                EditorGUILayout.LabelField("アバターが正しく学習できるかどうかを確認するためにテスト画像を撮影します。「顔のアップ」と「全身ポーズ」の二枚が撮影されますので、アバターアップロード前に確認してください", wrapStyle);
+                EditorGUILayout.LabelField("アバターが正しく学習できるかどうかを確認するためにテスト画像を撮影します。\n「顔のアップ」と「全身ポーズ」の二枚が撮影されますので、アバターアップロード前に確認してください。\n全身ポーズの上下に余白が多すぎる場合、学習精度が低くなる可能性がありますので、ちょうど頭から足がぴったり収まるようにアバターのBoundsを調整してください。", wrapStyle);
                 if (noError)
                 {
                     if (GUILayout.Button("撮影する"))
@@ -445,12 +445,12 @@ namespace AI.Avalab.ToolkitEditor
             // RendererのAABBが異常に大きくないかチェック
             // VRCSDKがあるならAvatarDescriptionのViewPointを使用する
             float avatarHeight = AvatarBuilder.GetAvatarHeight(animator);
-            Vector3 boundsSize = AvatarBuilder.GetAvatarBoundsSize(animator);
+            Bounds boundsSize = AvatarBuilder.CalculateBoundsForEachChildren(animator.gameObject);
             var limit = avatarHeight * 4;
 
-            if (boundsSize.x > limit || boundsSize.y > limit || boundsSize.z > limit)
+            if (boundsSize.size.x > limit || boundsSize.size.y > limit || boundsSize.size.z > limit)
             {
-                EditorGUILayout.HelpBox(string.Format("アバターAABB(x:{0:N2}, y:{1:N2}, z:{2:N2})が大きすぎます。\nAvalabではAABBが大きすぎると学習の精度に影響が出る可能性があります。使用しているメッシュオブジェクトのBoundsを修正して小さくしてください", boundsSize.x, boundsSize.y, boundsSize.z), MessageType.Info);
+                EditorGUILayout.HelpBox(string.Format("アバターAABB(x:{0:N2}, y:{1:N2}, z:{2:N2})が大きすぎます。\nAvalabではAABBが大きすぎると学習の精度に影響が出る可能性があります。使用しているメッシュオブジェクトのBoundsを修正して小さくしてください", boundsSize.size.x, boundsSize.size.y, boundsSize.size.z), MessageType.Info);
             }
 
             // パーティクスシステムがあったら念のため警告
