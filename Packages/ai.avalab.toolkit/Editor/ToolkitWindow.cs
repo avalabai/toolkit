@@ -552,7 +552,7 @@ namespace AI.Avalab.ToolkitEditor
             catch (AvalabRequest.ErrorException e)
             {
                 SetProgress(1, "アップロードエラー");
-                AddErrorLog(string.Format("アップロードエラー", e));
+                AddErrorLog(string.Format("アップロードエラー: {0} {1} (リクエストID: {2})", e.error, e.text, e.requestId));
                 return;
             }
             catch (Exception e)
