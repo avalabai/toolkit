@@ -1,7 +1,7 @@
 {
   "name": "ai.avalab.toolkit",
   "displayName": "Avalab Toolkit for Unity",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "unity": "2022.3",
   "description": "Avalab avatar uploading tools for Unity.",
   "vrchatVersion": "2022.1.1",
